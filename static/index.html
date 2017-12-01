@@ -41,7 +41,7 @@ async function callServer() {
     method: 'GET',
     headers: { 'Authorization': 'Bearer ' + id_token },
   };
-  const response = await fetch('/api/random', fetchOptions);
+  const response = await fetch('/api/user/request', fetchOptions);
   if (!response.ok) {
     // handle the error
     el.textContent = "Server error:\n" + response.status;

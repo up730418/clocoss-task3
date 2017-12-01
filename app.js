@@ -23,9 +23,8 @@ app.get('/api/protected', function (req, res) {
 });
 
 app.get('/api/random', function (req, res) {
-	let result = userRoles.find((user) => {return user.email == req.user.emails[0].value});
-console.log(result);
-	if(result.roles.includes("user") || result.roles.includes("admin")){
+	const currentUser = userRoles.find((user) => {return user.email == req.user.emails[0].value});
+	if(currentUser.roles.includes("user") || result.roles.includes("admin")){
 	
 		res.send((Math.random()).toString());
 	} else {
@@ -34,29 +33,55 @@ console.log(result);
 });
 
 app.get('/api/user/roles', function (req, res) {
-	console.log(req.user.emails[0].value);
-	let result = userRoles.find((user) => {return user.email == req.user.emails[0].value});
-	console.log(result.roles);
-	res.send(result? result.roles : []);
+	const currentUser = userRoles.find((user) => {return user.email == req.user.emails[0].value});
+	res.send(currentUser? currentUser.roles : []);
 });
 
 app.get('/api/user/request', function (req, res) {
-	let result = userRoles.filter((user) => { return user.roles.length == 0 });
-	let userIds = [];
-	result.forEach((user) => { userIds.push(user.email) });
-	res.send(userIds);
+	const currentUser = userRoles.find((user) => {return user.email == req.user.emails[0].value});
+	if(currentUser.roles.includes("admin")){
+
+		const userRequest = userRoles.filter((user) => { return user.roles.length == 0 });
+		let userIds = [];
+		userRequest.forEach((user) => { userIds.push(user.email) });
+		res.send(userIds);
+         
+        } else {
+                res.sendStatus(403);
+        }
 });
 
 app.post('/api/user/request', bodyParser.text(), function (req, res) {
+	const userExists = userRoles.find((user) => {return user.email == req.user.emails[0].value})
+	if(!userExists) {
+		userRoles.push({"email": req.user.emails[0].value, "roles": []})
+		res.sendStatus(202);
+	} else {
+		res.sendStatus(403);
+	}
 
 });
 
 app.post('/api/user/approve', bodyParser.text(), function (req, res) {
-
+	const currentUser = userRoles.find((user) => {return user.email == req.user.emails[0].value});
+        if(currentUser.roles.includes("admin")){
+		console.log(req.body);
+		let userToUpdate = userRoles.find((user) => {return user.email == req.body.email});
+		userToUpdate.roles =  req.body.roles;
+		res.send(userToUpdate);
+	
+	} else {
+                res.sendStatus(403);
+        }
 });
 
 app.delete('/api/user/:id(\\w+)',  function (req, res) {
-
+	const currentUser = userRoles.find((user) => {return user.email == req.user.emails[0].value});
+        if(currentUser.roles.includes("admin")){
+		userRoles = userRoles.filter((user) => {return user.email !== req.params.id}
+	} else {
+                res.sendStatus(403);
+        }
 });
  
 // this will serve the HTML file shown below
