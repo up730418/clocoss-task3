@@ -1,5 +1,4 @@
 const express = require('express');
-
 const app = express();
 const bodyParser = require('body-parser');
 const googleauth = require('simple-google-openid');
@@ -31,7 +30,11 @@ app.get('/api/user/roles', (req, res) => {
 
 app.get('/api/user/request', (req, res) => {
   if (checkAdmin(req)) {
-    res.send(userRequests);
+    const userRequest = userRoles.filter((user) => { return user.roles.length == 0 });
+    let userIds = [];
+    userRequest.forEach((user) => { userIds.push(user.email) });
+    res.send(userIds);
+
   } else {
     res.sendStatus(403);
   }
@@ -46,10 +49,9 @@ app.get('/api/users', (req, res) => {
 });
 
 app.post('/api/user/request', bodyParser.text(), (req, res) => {
-  const userRequested = userRequests.includes(req.user.emails[0].value);
-  const userExists = userRoles.find((user) => { return user.email == req.user.emails[0].value; });
-  if (!userExists && !userRequested) {
-    userRequests.push(req.user.emails[0].value);
+  const userExists = userRoles.find((user) => {return user.email == req.user.emails[0].value})
+  if(!userExists) {
+    userRoles.push({"email": req.user.emails[0].value, "roles": []})
     res.sendStatus(202);
   } else {
     res.sendStatus(403);
@@ -58,12 +60,9 @@ app.post('/api/user/request', bodyParser.text(), (req, res) => {
 
 app.post('/api/user/approve', bodyParser.text(), (req, res) => {
   if (checkAdmin(req)) {
-    userToAdd = { email: req.body, roles: ['user'] };
-    userRoles.push(userToAdd);
-		
-    userRequests.splice(userRequests.indexOf(req.body, 1));
-		
-    res.send(userToAdd);
+    let userToUpdate = userRoles.find((user) => {return user.email == req.body});
+    userToUpdate.roles = ['user'];
+    res.send(userToUpdate);
   } else {
     res.sendStatus(403);
   }
