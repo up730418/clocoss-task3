@@ -3,7 +3,6 @@ const app = express();
 const bodyParser = require('body-parser');
 const googleauth = require('simple-google-openid');
 
-const roles = ['admin', 'user'];
 let userRoles = [{ email: 'up730418@myport.ac.uk', roles: ['user', 'admin'] }];
 
 // you can put your client ID here
