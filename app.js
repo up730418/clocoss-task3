@@ -5,7 +5,6 @@ const googleauth = require('simple-google-openid');
 
 const roles = ['admin', 'user'];
 let userRoles = [{ email: 'up730418@myport.ac.uk', roles: ['user', 'admin'] }];
-const userRequests = [];
 
 // you can put your client ID here
 app.use(googleauth('637021493194-nncq03bpm7am8odjsl69ibceoutch5k4.apps.googleusercontent.com'));
