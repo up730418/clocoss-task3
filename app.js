@@ -3,7 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const googleauth = require('simple-google-openid');
 const roles = ['admin','user'];
-let userRoles = [{"email": "up730418@myport.ac.ukzz", "roles": []}, {"email": "up730418@myport.ac.uk", "roles": ['user','admin']},];
+let userRoles = [{"email": "up730418@myport.ac.uk", "roles": ['user','admin']},];
 
 // you can put your client ID here
 app.use(googleauth('637021493194-nncq03bpm7am8odjsl69ibceoutch5k4.apps.googleusercontent.com'));
@@ -12,34 +12,25 @@ app.use(googleauth('637021493194-nncq03bpm7am8odjsl69ibceoutch5k4.apps.googleuse
 // return 'Not authorized' if we don't have a user
 app.use('/api', googleauth.guardMiddleware({realm: 'jwt'}));
  
-app.get('/api/protected', function (req, res) {
-  if (req.user.displayName) {
-    res.send('Hello ' + req.user.displayName + '!');
-  } else {
-    res.send('Hello stranger!');
-  }
- 
-  console.log('successful authorized request by ' + req.user.emails[0].value);
-});
-
 app.get('/api/random', function (req, res) {
-	const currentUser = userRoles.find((user) => {return user.email == req.user.emails[0].value});
-	if(currentUser.roles.includes("user") || result.roles.includes("admin")){
 	
-		res.send((Math.random()).toString());
+	if(checkUser(req)) {
+
+		res.send(Math.random().toString());
 	} else {
 		res.sendStatus(403);
 	}
 });
 
 app.get('/api/user/roles', function (req, res) {
+	
 	const currentUser = userRoles.find((user) => {return user.email == req.user.emails[0].value});
 	res.send(currentUser? currentUser.roles : []);
 });
 
 app.get('/api/user/request', function (req, res) {
-	const currentUser = userRoles.find((user) => {return user.email == req.user.emails[0].value});
-	if(currentUser.roles.includes("admin")){
+	
+	if(checkAdmin(req)){
 
 		const userRequest = userRoles.filter((user) => { return user.roles.length == 0 });
 		let userIds = [];
@@ -51,7 +42,17 @@ app.get('/api/user/request', function (req, res) {
         }
 });
 
+app.get('/api/users', function (req, res) {
+	
+	if(checkAdmin(req)){
+		res.send(userRoles);
+	} else {
+		res.sendStatus(403);
+	}
+});
+
 app.post('/api/user/request', bodyParser.text(), function (req, res) {
+	
 	const userExists = userRoles.find((user) => {return user.email == req.user.emails[0].value})
 	if(!userExists) {
 		userRoles.push({"email": req.user.emails[0].value, "roles": []})
@@ -63,11 +64,10 @@ app.post('/api/user/request', bodyParser.text(), function (req, res) {
 });
 
 app.post('/api/user/approve', bodyParser.text(), function (req, res) {
-	const currentUser = userRoles.find((user) => {return user.email == req.user.emails[0].value});
-        if(currentUser.roles.includes("admin")){
-		console.log(req.body);
-		let userToUpdate = userRoles.find((user) => {return user.email == req.body.email});
-		userToUpdate.roles =  req.body.roles;
+
+        if(checkAdmin(req)){
+		let userToUpdate = userRoles.find((user) => {return user.email == req.body});
+		userToUpdate.roles = ['user'];
 		res.send(userToUpdate);
 	
 	} else {
@@ -75,15 +75,36 @@ app.post('/api/user/approve', bodyParser.text(), function (req, res) {
         }
 });
 
-app.delete('/api/user/:id(\\w+)',  function (req, res) {
-	const currentUser = userRoles.find((user) => {return user.email == req.user.emails[0].value});
-        if(currentUser.roles.includes("admin")){
-		userRoles = userRoles.filter((user) => {return user.email !== req.params.id}
+app.delete('/api/user/:id',  function (req, res) {
+        
+	if(checkAdmin(req)){
+		userRoles = userRoles.filter((user) => {return user.email !== req.params.id});
+		res.sendStatus(204);
 	} else {
                 res.sendStatus(403);
         }
 });
- 
+
+function checkUser(req) {
+	
+	const currentUser = userRoles.find((user) => {return user.email == req.user.emails[0].value});
+        if(currentUser !== undefined && (currentUser.roles.includes("user") || currentUser.roles.includes("admin"))){
+              return true;
+        } else {
+		return false;
+	}
+} 
+
+function checkAdmin(req) {
+	
+	const currentUser = userRoles.find((user) => {return user.email == req.user.emails[0].value});
+        if(currentUser.roles.includes("admin")){
+		return true;
+	} else {
+		return false;
+	}
+
+}
 // this will serve the HTML file shown below
 app.use(express.static('static'));
  
