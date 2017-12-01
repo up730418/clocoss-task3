@@ -17,7 +17,8 @@ app.use('/api', googleauth.guardMiddleware({ realm: 'jwt' }));
  
 app.get('/api/random', (req, res) => {
   if (checkUser(req)) {
-    res.send(Math.random().toString());
+     res.set('Content-Type', 'text/plain');
+     res.send(Math.random().toString());
   } else {
     res.sendStatus(403);
   }
@@ -88,7 +89,7 @@ function checkUser(req) {
 
 function checkAdmin(req) {
   const currentUser = userRoles.find((user) => { return user.email == req.user.emails[0].value; });
-  if (currentUser.roles.includes('admin')) {
+  if (currentUser !== undefined && currentUser.roles.includes('admin')) {
     return true;
   } else {
     return false;
