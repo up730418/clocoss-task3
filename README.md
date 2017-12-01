@@ -10,7 +10,7 @@ Follow the prompt and enter details of an account authorised to access this repo
 
 once cloned move into the folder "clocoss-task3" and type:
 
-npm install
+sh setup/server-config.sh
 
 This will install and configure node
 
