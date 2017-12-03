@@ -16,4 +16,4 @@ This will install and configure node
 
 Now node is configured run:
 
-node app
+gcloud deploy app
