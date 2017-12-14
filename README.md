@@ -21,6 +21,6 @@ Now node is configured to run the app type:
 
 `node app`
 
-## Deploy in Gcloud app Engine
+## Deploy in gcloud app Engine
 
 `gcloud deploy app`
