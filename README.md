@@ -25,4 +25,4 @@ Now node is configured to run the app type:
 
 Ensure your in the clocoss-task3 folder then type: 
 
-`gcloud deploy app`
+`gcloud app deploy`
