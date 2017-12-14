@@ -8,12 +8,19 @@ git clone https://github.com/up730418/clocoss-task3/
 
 Follow the prompt and enter details of an account authorised to access this repo
 
+
+## Run locally 
+
 once cloned move into the folder "clocoss-task3" and type:
 
 sh setup/server-config.sh
 
 This will install and configure node
 
-Now node is configured run:
+Now node is configured to run the app type:
 
-gcloud deploy app
+`node app`
+
+## Deploy in Gcloud app Engine
+
+`gcloud deploy app`
