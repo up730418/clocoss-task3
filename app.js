@@ -1,9 +1,10 @@
 const express = require('express');
 const app = express();
 
-// this will serve the HTML file shown below
+// This will serve the HTML files from static
 app.use(express.static('static'));
 
+// This will use teh api module
 app.use('/api', require('./api'));
  
 const PORT = process.env.PORT || 8080;
